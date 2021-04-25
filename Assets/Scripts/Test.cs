@@ -22,7 +22,10 @@ public class Test : MonoBehaviour
     [Header("People")]
     public int workers;
     public int warriors;
+    public int warriorslost;
+    public int workerlost;
     int freeworkers;
+    int freewarriors;
     [Header("Costs")]
     public int workercost;
     public int warriorcost;
@@ -43,17 +46,12 @@ public class Test : MonoBehaviour
     void Start()
     {
         freeworkers = workers;
+        freewarriors = warriors;
         int count = maps.Length;
         points = new int[count];
         goldText.text = gold.ToString();
         workerstext.text = workers.ToString();
         warriortext.text = warriors.ToString();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void BuyWorker(int count, int cost)
@@ -65,7 +63,8 @@ public class Test : MonoBehaviour
 
     public void BuyWarrior(int count, int cost, int upkeeps)
     {
-        workers += count;
+        warriors += count;
+        freewarriors += count;
         gold -= cost;
         upkeep += upkeeps;
         GoldIncrease(-upkeeps);
@@ -193,30 +192,48 @@ public class Test : MonoBehaviour
 
     public void Explore()
     {
-        OpenPoint(mappoints[tempmappoint]);
+        if (freeworkers >= 5)
+        {
+            freeworkers -= 5;
+            OpenPoint(mappoints[tempmappoint], false);
+            return;
+        }
+        Debug.LogError("Not much workers");
     }
     public void ExploreEscort()
     {
-        if (gold > escortfactor)
-        {
-            gold -= escortfactor;
-            OpenPoint(mappoints[tempmappoint]);
-        }
-        else
+        if (gold < escortfactor)
         {
             Debug.Log("Not Enogth money");
             return;
         }
+        if (freewarriors < 5)
+        {
+            Debug.Log("Not Enogth warriors");
+            return;
+        }
+        gold -= escortfactor;
+        freewarriors -= 5;
+        UpdateText();
+        OpenPoint(mappoints[tempmappoint], true);
     }
 
-    public void OpenPoint(MapPoint mp)
+    public void OpenPoint(MapPoint mp, bool escort)
     {
+        
+        mp.workersonExplore = 5;
+        mp.escort = escort;
+        mp.onExplore = true;
+        if (mp.monsters && !mp.escort)
+        {
+            CloseExploreWindow();
+            return;
+        }
         for (int i = 0; i < mp.links.Length; i++)
         {
             points[mappos] = mp.links[i];
             mappos++;
         }
-        mp.onExplore = true;
         CloseExploreWindow();
     }
 
@@ -231,16 +248,34 @@ public class Test : MonoBehaviour
                 goldmining = 0;
                 UpdateText();
                 m.workershere = 0;
-                freeworkers = workers;
             }
             if (m.onExplore)
-                m.explored = true;
+            {
+                if (m.monsters && !m.escort)
+                {
+                    Debug.Log("LoseExplore");
+                    m.workersonExplore = 0;
+                    LoseWorkers(workerlost);
+                    m.explored = false;
+                }
+                else
+                {
+                    if (m.monsters && m.escort)
+                        LoseWarriors(warriorslost);
+                    m.explored = true;
+                    for (int i = 0; i < points.Length; i++)
+                    {
+                        Debug.Log(i);
+                        maps[points[i]].SetActive(true);
+                    }
+                }
+            }
             m.onExplore = false;
         }
-        for (int i = 0; i < points.Length; i++)
-        {
-            maps[points[i]].SetActive(true);
-        }
+        mappos = 0;
+        freeworkers = workers;
+        freewarriors = warriors;
+        UpdateText();
     }
 
     void NowMapPoint(int number)
@@ -300,10 +335,5 @@ public class Test : MonoBehaviour
             return;
         }
         sendWorkersWindow.SetActive(true);
-    }
-
-    public void CheckGoldInPoint()
-    {
-
     }
 }
