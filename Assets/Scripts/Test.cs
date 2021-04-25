@@ -33,31 +33,40 @@ public class Test : MonoBehaviour
     [Header("Costs")]
     public int workercost;
     public int warriorcost;
+    [Header("Monsters")]
+    public int monster;
     [Header("Windows")]
     public GameObject buyWindow;
     public GameObject exploreWindow;
     public GameObject mineWindow;
     public GameObject sendWorkersWindow;
     public GameObject StartTurnWindow;
+    public GameObject monstersAttackWindow;
+    public GameObject infoMessageWindow;
     public Slider counter;
     public Slider counterworkers;
     public Text counterlabel;
     public Text counterworkerslabel;
     public Text turnCounter;
+    public Text minecounter;
     public Text startTurnText;
     public Text escortText, noEscortText;
     public Text errorText;
     public Text goldCount;
+    public Text monstersAttackText;
+    public Text infoMessage;
     [Header("ResoursesText")]
     public Text goldText, workerstext, warriortext;
     int nowtype;
     int tempcost = 0, tempupkeep = 0, tempfullcost = 0, tempcount = 0, tempworkers = 0, tempmappoint = 0;
     int turns = 1;
-    int newpoints;
+    int newpoints, allpoints = 0;
+    bool firstmessage, secondmessage, thirdmessage;
     // Start is called before the first frame update
     void Start()
     {
         turnCounter.text = "Turn : " + turns;
+        minecounter.text = "Mines : " + allpoints;
         freeworkers = workers;
         freewarriors = warriors;
         int count = maps.Length;
@@ -105,6 +114,10 @@ public class Test : MonoBehaviour
     {
         lostworkersonturn += count;
         workers -= count;
+        if (workers < 0)
+        {
+            workers = 0;
+        }
         UpdateText();
     }
 
@@ -321,7 +334,7 @@ public class Test : MonoBehaviour
     {  
         if (HowMuckGoldOnPoint() / 3 < 5)
         {
-            counterworkers.maxValue = HowMuckGoldOnPoint() / 3;
+            counterworkers.maxValue = (HowMuckGoldOnPoint() / 3) - HowMuckWorkersOnPoint();
             tempworkers = (int)counterworkers.value;
             counterworkerslabel.text = "Count: " + tempworkers.ToString();
             return;
@@ -380,8 +393,10 @@ public class Test : MonoBehaviour
             warriors--;
             gold++;
         }
+        allpoints += newpoints;
         goldincreas = 0;
         turns++;
+        minecounter.text = "Mines: " + allpoints + "/15";
         turnCounter.text = "Turn : " + turns;
         mappos = 0;
         freeworkers = workers;
@@ -414,5 +429,85 @@ public class Test : MonoBehaviour
     {
         errorText.gameObject.SetActive(false);
         errorText.text = "";
+    }
+
+    public void MonsterAtackWindowShow()
+    {
+        int monsterChance = allpoints - Random.Range(3, 10);
+        if (monsterChance >= 4)
+        {
+            monster = allpoints + 7 - Random.Range(1, 9);
+            BattleWithMonsters();
+            return;
+        }
+        if (monsterChance >= 2)
+        {
+            monster = allpoints + 5 - Random.Range(1, 5);
+            BattleWithMonsters();
+            return;
+        }
+        if (monsterChance >= 0)
+        {
+            monster = allpoints + 3 - Random.Range(1, 2);
+            BattleWithMonsters();
+            return;
+        }
+        ShowMessageWindow();
+    }
+
+    public void BattleWithMonsters()
+    {
+        if (warriors > monster)
+        {
+            LoseWarriors((int)(0.3f * allpoints) + 2);
+            monstersAttackWindow.SetActive(true);
+            monstersAttackText.text = "big";
+            UpdateText();
+            return;
+        }
+        if (warriors == monster)
+        {
+            LoseWarriors((int)(0.5f * allpoints) + 2);
+            monstersAttackWindow.SetActive(true);
+            monstersAttackText.text = "big";
+            UpdateText();
+            return;
+        }
+        if (warriors < monster)
+        {
+            LoseWarriors((int)(0.5f * allpoints) + 2);
+            if (warriors < 0)
+            {
+                Debug.LogError("Lose");
+                warriors = 0;
+            }
+            LoseWorkers(lostwarriorsontern);
+            monstersAttackWindow.SetActive(true);
+            monstersAttackText.text = "big";
+            UpdateText();
+            return;
+        }
+    }
+
+    public void ShowMessageWindow()
+    {
+        if (!firstmessage && allpoints == 3)
+        {
+            infoMessageWindow.SetActive(true);
+            infoMessage.text = "";
+            firstmessage = true;
+        }
+        if (!secondmessage && allpoints == 7)
+        {
+            infoMessageWindow.SetActive(true);
+            infoMessage.text = "";
+            secondmessage = true;
+        }
+        if (!thirdmessage && allpoints == 11)
+        {
+            infoMessageWindow.SetActive(true);
+            infoMessage.text = "";
+            thirdmessage = true;
+        }
     }
 }
