@@ -24,6 +24,10 @@ public class Test : MonoBehaviour
     public int warriors;
     public int warriorslost;
     public int workerlost;
+    public int warriorsEscrot = 5;
+    public int workersExplore = 5;
+    int lostwarriorsontern;
+    int lostworkersonturn;
     int freeworkers;
     int freewarriors;
     [Header("Costs")]
@@ -34,24 +38,36 @@ public class Test : MonoBehaviour
     public GameObject exploreWindow;
     public GameObject mineWindow;
     public GameObject sendWorkersWindow;
+    public GameObject StartTurnWindow;
     public Slider counter;
     public Slider counterworkers;
     public Text counterlabel;
     public Text counterworkerslabel;
+    public Text turnCounter;
+    public Text startTurnText;
+    public Text escortText, noEscortText;
+    public Text errorText;
+    public Text goldCount;
     [Header("ResoursesText")]
     public Text goldText, workerstext, warriortext;
     int nowtype;
     int tempcost = 0, tempupkeep = 0, tempfullcost = 0, tempcount = 0, tempworkers = 0, tempmappoint = 0;
+    int turns = 1;
+    int newpoints;
     // Start is called before the first frame update
     void Start()
     {
+        turnCounter.text = "Turn : " + turns;
         freeworkers = workers;
         freewarriors = warriors;
         int count = maps.Length;
         points = new int[count];
-        goldText.text = gold.ToString();
-        workerstext.text = workers.ToString();
-        warriortext.text = warriors.ToString();
+        goldText.text = gold.ToString() + "/" + goldincreas.ToString();
+        workerstext.text = freeworkers.ToString() + "/" + workers.ToString();
+        warriortext.text = freewarriors.ToString() + "/" + freewarriors.ToString();
+        lostwarriorsontern = 0;
+        lostworkersonturn = 0;
+        newpoints = 0;
     }
 
     public void BuyWorker(int count, int cost)
@@ -79,6 +95,7 @@ public class Test : MonoBehaviour
 
     public void LoseWarriors(int count)
     {
+        lostwarriorsontern += count;
         warriors -= count;
         upkeep -= count * upkeepfactor;
         UpdateText();
@@ -86,6 +103,7 @@ public class Test : MonoBehaviour
 
     public void LoseWorkers(int count)
     {
+        lostworkersonturn += count;
         workers -= count;
         UpdateText();
     }
@@ -157,9 +175,12 @@ public class Test : MonoBehaviour
 
     public void UpdateText()
     {
-        goldText.text = gold.ToString();
-        workerstext.text = workers.ToString();
-        warriortext.text = warriors.ToString();
+        if (goldincreas > 0)
+            goldText.text = gold.ToString() + "/ +" + goldincreas.ToString();
+        else
+            goldText.text = gold.ToString() + "/ " + goldincreas.ToString();
+        workerstext.text = freeworkers.ToString() + "/" + workers.ToString();
+        warriortext.text = freewarriors.ToString() + "/" + warriors.ToString();
     }
 
     public void ShowExploreWindow(MapPoint mp)
@@ -171,6 +192,7 @@ public class Test : MonoBehaviour
         }
         if (mp.explored)
         {
+            goldCount.text = "Gold in Mine: " + mp.gold.ToString();
             NowMapPoint(mp.number);
             mineWindow.SetActive(true);
             counterworkers.maxValue = 5 - HowMuckWorkersOnPoint();
@@ -192,36 +214,50 @@ public class Test : MonoBehaviour
 
     public void Explore()
     {
-        if (freeworkers >= 5)
+        if (freeworkers >= workersExplore)
         {
-            freeworkers -= 5;
+            freeworkers -= workersExplore;
+            UpdateText();
             OpenPoint(mappoints[tempmappoint], false);
             return;
         }
-        Debug.LogError("Not much workers");
+        errorText.gameObject.SetActive(true);
+        errorText.text = "Not much workers";
     }
     public void ExploreEscort()
     {
-        if (gold < escortfactor)
+        if (freeworkers < workersExplore)
         {
-            Debug.Log("Not Enogth money");
+
+            errorText.gameObject.SetActive(true);
+            errorText.text = "Not much workers";
             return;
         }
-        if (freewarriors < 5)
+        if (gold < escortfactor)
         {
-            Debug.Log("Not Enogth warriors");
+
+            errorText.gameObject.SetActive(true);
+            errorText.text = "Not much money";
+            return;
+        }
+        if (freewarriors < warriorsEscrot)
+        {
+
+            errorText.gameObject.SetActive(true);
+            errorText.text = "Not much warriors";
             return;
         }
         gold -= escortfactor;
-        freewarriors -= 5;
+        freeworkers -= workersExplore;
+        freewarriors -= warriorsEscrot;
         UpdateText();
         OpenPoint(mappoints[tempmappoint], true);
     }
 
     public void OpenPoint(MapPoint mp, bool escort)
     {
-        
-        mp.workersonExplore = 5;
+        CleanErrorText();
+        mp.workersonExplore = workersExplore;
         mp.escort = escort;
         mp.onExplore = true;
         if (mp.monsters && !mp.escort)
@@ -263,6 +299,7 @@ public class Test : MonoBehaviour
                     if (m.monsters && m.escort)
                         LoseWarriors(warriorslost);
                     m.explored = true;
+                    newpoints++;
                     for (int i = 0; i < points.Length; i++)
                     {
                         Debug.Log(i);
@@ -272,10 +309,7 @@ public class Test : MonoBehaviour
             }
             m.onExplore = false;
         }
-        mappos = 0;
-        freeworkers = workers;
-        freewarriors = warriors;
-        UpdateText();
+        ShowStartTurnWindow();
     }
 
     void NowMapPoint(int number)
@@ -307,6 +341,7 @@ public class Test : MonoBehaviour
         mappoints[tempmappoint].workershere += tempworkers;
         freeworkers -= tempworkers;
         goldmining += tempworkers * goldminingfactor;
+        GoldIncrease(tempworkers * goldminingfactor);
         counterworkers.value = 0;
         tempworkers = 0;
     }
@@ -335,5 +370,49 @@ public class Test : MonoBehaviour
             return;
         }
         sendWorkersWindow.SetActive(true);
+    }
+
+    public void InfoUpdate()
+    {
+        gold -= warriors;
+        while (gold < 0)
+        {
+            warriors--;
+            gold++;
+        }
+        goldincreas = 0;
+        turns++;
+        turnCounter.text = "Turn : " + turns;
+        mappos = 0;
+        freeworkers = workers;
+        freewarriors = warriors;
+        lostwarriorsontern = 0;
+        lostworkersonturn = 0;
+        newpoints = 0;
+        GoldIncrease(-warriors);
+        UpdateText();
+    }
+    
+    public void ShowStartTurnWindow()
+    {
+        StartTurnWindow.SetActive(true);
+        startTurnText.text = "Gold: " + goldincreas.ToString() + "\nLostWarriors: " + lostwarriorsontern.ToString() + "\nLostWorkers: " + lostworkersonturn.ToString() + "\nNewMines: " + newpoints.ToString();
+        InfoUpdate();
+    }
+
+    public void NewExcortText()
+    {
+        escortText.text = "text" + "\nNeed Workers: " + workersExplore.ToString() + "\nNeed Warriors: " + warriorsEscrot.ToString() + "\nNeed Gold: " + escortfactor.ToString();
+    }
+
+    public void NewNoExcortText()
+    {
+        noEscortText.text = "text" + "\nNeed Workers: " + workersExplore.ToString();
+    }
+
+    public void CleanErrorText()
+    {
+        errorText.gameObject.SetActive(false);
+        errorText.text = "";
     }
 }
