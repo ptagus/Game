@@ -306,7 +306,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.14719832, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -315,7 +315,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 34
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -1294,11 +1294,15 @@ MonoBehaviour:
   links: 0400000006000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 7
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &436346138
 GameObject:
   m_ObjectHideFlags: 0
@@ -2424,11 +2428,15 @@ MonoBehaviour:
   links: 0500000009000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 8
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &769058503
 GameObject:
   m_ObjectHideFlags: 0
@@ -3296,7 +3304,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1053895131}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1114816468}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1053895131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3686,7 +3706,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1118639692}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1132001284}
+        m_TargetAssemblyTypeName: Test, Assembly-CSharp
+        m_MethodName: ExploreEscort
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1118639692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3782,9 +3814,11 @@ MonoBehaviour:
   goldminingfactor: 3
   upkeepfactor: 1
   goldincreas: 0
-  escortfactor: 0
+  escortfactor: 5
   workers: 1
   warriors: 1
+  warriorslost: 1
+  workerlost: 0
   workercost: 5
   warriorcost: 10
   buyWindow: {fileID: 1616767446}
@@ -3961,11 +3995,15 @@ MonoBehaviour:
   links: 0100000002000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 0
   workershere: 0
   number: 0
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1156436077
 GameObject:
   m_ObjectHideFlags: 0
@@ -4265,11 +4303,15 @@ MonoBehaviour:
   links: 0200000008000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 5
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1208605590
 GameObject:
   m_ObjectHideFlags: 0
@@ -4977,7 +5019,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.14719832, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4986,7 +5028,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 34
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -5363,11 +5405,15 @@ MonoBehaviour:
   links: 010000000400000006000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 3
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1418974468
 GameObject:
   m_ObjectHideFlags: 0
@@ -5517,11 +5563,15 @@ MonoBehaviour:
   links: 0000000005000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 2
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1473809455
 GameObject:
   m_ObjectHideFlags: 0
@@ -5773,11 +5823,15 @@ MonoBehaviour:
   links: 010000000300000007000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 4
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1612091950
 GameObject:
   m_ObjectHideFlags: 0
@@ -5927,11 +5981,15 @@ MonoBehaviour:
   links: 000000000300000004000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 1
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1616767446
 GameObject:
   m_ObjectHideFlags: 0
@@ -6630,11 +6688,15 @@ MonoBehaviour:
   links: 08000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 9
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &1790369951
 GameObject:
   m_ObjectHideFlags: 0
@@ -7389,11 +7451,15 @@ MonoBehaviour:
   links: 0300000007000000
   explored: 0
   onExplore: 0
+  monsters: 0
+  escort: 0
+  monsterchance: 60
   workershere: 0
   number: 6
   goldCountMin: 30
   goldCountMax: 50
   gold: 0
+  workersonExplore: 0
 --- !u!1 &2021517389
 GameObject:
   m_ObjectHideFlags: 0
@@ -7523,7 +7589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.14719832, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7532,7 +7598,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 34
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
