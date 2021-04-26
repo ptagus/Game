@@ -28,6 +28,13 @@ public class MapPoint : MonoBehaviour
         return Random.Range(goldCountMin, goldCountMax) / 3 * 3;
     }
 
+    public bool NoGoldOnNextTurn()
+    {
+        if (workershere * 3 == gold)
+            return true;
+        return false;
+    }
+
     public void GoldCheck(int goldmine)
     {
         gold -= workershere * goldmine;
@@ -47,6 +54,7 @@ public class MapPoint : MonoBehaviour
         if (!escort && monsters)
         {
             GetComponent<Image>().sprite = monstersimg;
+            return;
         }
         if (explored)
         {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
@@ -45,6 +46,8 @@ public class Test : MonoBehaviour
     public GameObject StartTurnWindow;
     public GameObject monstersAttackWindow;
     public GameObject infoMessageWindow;
+    public GameObject WinLoseWindow;
+    public GameObject pause;
     public Slider counter;
     public Slider counterworkers;
     public Text counterlabel;
@@ -57,6 +60,8 @@ public class Test : MonoBehaviour
     public Text goldCount;
     public Text monstersAttackText;
     public Text infoMessage;
+    public Text WinLoseText;
+    public Text textOnBuyWindow;
     [Header("ResoursesText")]
     public Text goldText, workerstext, warriortext;
     int nowtype;
@@ -79,6 +84,14 @@ public class Test : MonoBehaviour
         lostwarriorsontern = 0;
         lostworkersonturn = 0;
         newpoints = 0;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ShowPause();
+        }
     }
 
     public void BuyWorker(int count, int cost)
@@ -110,6 +123,11 @@ public class Test : MonoBehaviour
         warriors -= count;
         upkeep -= count * upkeepfactor;
         freewarriors -= count;
+        if (warriors < 0)
+        {
+            warriors = 0;
+            freewarriors = 0;
+        }
         UpdateText();
     }
 
@@ -121,6 +139,7 @@ public class Test : MonoBehaviour
         if (workers < 0)
         {
             workers = 0;
+            freeworkers = 0;
         }
         UpdateText();
     }
@@ -151,10 +170,12 @@ public class Test : MonoBehaviour
     {        
         if (nowtype == 1)
         {
+            textOnBuyWindow.text = "Workers can help you explore new mines and extract more gold. you NO need to upkeep your workers.";
             tempcost = workercost;
         }
         if (nowtype == 2)
         {
+            textOnBuyWindow.text = "Warriors can help you protect your workers and mines. You need to upkeep your warriors!";
             tempcost = warriorcost;
         }
         tempcount = (int)counter.value;
@@ -204,7 +225,12 @@ public class Test : MonoBehaviour
     {
         if (mp.onExplore)
         {
-            Debug.LogError("OnExplore");
+            //Debug.LogError("OnExplore");
+            return;
+        }
+        if (mp.NoGoldOnNextTurn() || mp.workershere == 5)
+        {
+            //Debug.LogError("Full");
             return;
         }
         if (mp.explored)
@@ -306,10 +332,11 @@ public class Test : MonoBehaviour
             {
                 if (m.monsters && !m.escort)
                 {
-                    Debug.Log("LoseExplore");
+                    //Debug.Log("LoseExplore");
                     m.workersonExplore = 0;
                     LoseWorkers(workerlost);
                     m.explored = false;
+                    m.ExploreMine();
                 }
                 else
                 {
@@ -384,7 +411,7 @@ public class Test : MonoBehaviour
     {
         if (HowMuckWorkersOnPoint() == 5)
         {
-            Debug.LogError("FULLhere");
+            //Debug.LogError("FULLhere");
             return;
         }
         sendWorkersWindow.SetActive(true);
@@ -399,6 +426,11 @@ public class Test : MonoBehaviour
             gold++;
         }
         allpoints += newpoints;
+        if (allpoints == 15)
+        {
+            WinLose(true);
+            return;
+        }
         goldincreas = 0;
         turns++;
         minecounter.text = "Mines: " + allpoints + "/15";
@@ -416,18 +448,18 @@ public class Test : MonoBehaviour
     public void ShowStartTurnWindow()
     {
         StartTurnWindow.SetActive(true);
-        startTurnText.text = "Gold: " + goldincreas.ToString() + "\nLostWarriors: " + lostwarriorsontern.ToString() + "\nLostWorkers: " + lostworkersonturn.ToString() + "\nNewMines: " + newpoints.ToString();
+        startTurnText.text = "Results of last turn: \nGold income: " + goldincreas.ToString() + "\nWarriors lost: " + lostwarriorsontern.ToString() + "\nWorkers lost: " + lostworkersonturn.ToString() + "\nNew mine explored: " + newpoints.ToString();
         InfoUpdate();
     }
 
     public void NewExcortText()
     {
-        escortText.text = "text" + "\nNeed Workers: " + workersExplore.ToString() + "\nNeed Warriors: " + warriorsEscrot.ToString() + "\nNeed Gold: " + escortfactor.ToString();
+        escortText.text = "Your workers will be protected, but it costs money. 5 WORKERS will be busy with it. 5 WARRIORS will be busy with it. It will cost 5 GOLD.";
     }
 
     public void NewNoExcortText()
     {
-        noEscortText.text = "text" + "\nNeed Workers: " + workersExplore.ToString();
+        noEscortText.text = "You will leave workers unprotected, they can die if they meet monsters. Are you sure? 5 WORKERS will be busy with it.";
     }
 
     public void CleanErrorText()
@@ -464,31 +496,29 @@ public class Test : MonoBehaviour
     {
         if (warriors > monster)
         {
+            int lostinbattle = (int)(0.3f * allpoints) + 2;
             LoseWarriors((int)(0.3f * allpoints) + 2);
             monstersAttackWindow.SetActive(true);
-            monstersAttackText.text = "big";
+            monstersAttackText.text = "Monsters were here! You win! \n Monster power: " + monster + "\n Warriors lost: " + lostinbattle.ToString();
             UpdateText();
             return;
         }
         if (warriors == monster)
         {
+            int lostinbattle = (int)(0.5f * allpoints) + 2;
             LoseWarriors((int)(0.5f * allpoints) + 2);
             monstersAttackWindow.SetActive(true);
-            monstersAttackText.text = "big";
+            monstersAttackText.text = "Monsters were here! You win! \n Monster power: " + monster + "\n Warriors lost: " + lostinbattle.ToString();
             UpdateText();
             return;
         }
         if (warriors < monster)
         {
+            int lostinbattle = (int)(0.5f * allpoints) + 2;
             LoseWarriors((int)(0.5f * allpoints) + 2);
-            if (warriors < 0)
-            {
-                Debug.LogError("Lose");
-                warriors = 0;
-            }
-            LoseWorkers(lostwarriorsontern);
+            LoseWorkers(lostworkersonturn);
             monstersAttackWindow.SetActive(true);
-            monstersAttackText.text = "big";
+            monstersAttackText.text = "Monsters were here! You win! \n Monster power: " + monster + "\n Warriors lost: " + lostinbattle.ToString() + "\n Workers lost: " + lostwarriorsontern.ToString();
             UpdateText();
             return;
         }
@@ -499,20 +529,54 @@ public class Test : MonoBehaviour
         if (!firstmessage && allpoints >= 3)
         {
             infoMessageWindow.SetActive(true);
-            infoMessage.text = "";
+            infoMessage.text = "You go deeper and deeper! more and more monsters want your blood";
             firstmessage = true;
         }
         if (!secondmessage && allpoints >= 7)
         {
             infoMessageWindow.SetActive(true);
-            infoMessage.text = "";
+            infoMessage.text = "You go deeper and deeper! more and more monsters want your blood";
             secondmessage = true;
         }
         if (!thirdmessage && allpoints >= 11)
         {
             infoMessageWindow.SetActive(true);
-            infoMessage.text = "";
+            infoMessage.text = "You go deeper and deeper! more and more monsters want your blood";
             thirdmessage = true;
         }
+    }
+
+    public void WinLose(bool win)
+    {
+        if (win)
+        {
+            WinLoseText.text = "You did it! All mines under control. Congratulations!";
+            WinLoseWindow.SetActive(true);
+        }
+        if (!win)
+        {
+            WinLoseText.text = "Monsters are stronger than you! Go cry or try again.";
+            WinLoseWindow.SetActive(true);
+        }
+    }
+
+    public void ShowPause()
+    {
+        pause.SetActive(true);
+    }
+
+    public void ToMainMenu()
+    {
+        SceneManager.LoadSceneAsync(0);
+    }
+
+    public void Retry()
+    {
+        SceneManager.LoadSceneAsync(1);
+    }
+
+    public void Exit()
+    {
+        Application.Quit();
     }
 }
