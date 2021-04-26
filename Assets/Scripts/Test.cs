@@ -377,8 +377,12 @@ public class Test : MonoBehaviour
         if (HowMuckGoldOnPoint() / 3 < 5)
         {
             counterworkers.maxValue = (HowMuckGoldOnPoint() / 3) - HowMuckWorkersOnPoint();
+            if (freeworkers < counterworkers.maxValue)
+            {
+                counterworkers.maxValue = freeworkers;
+            }
             tempworkers = (int)counterworkers.value;
-            counterworkerslabel.text = "Count: " + tempworkers.ToString();
+            counterworkerslabel.text = "Count: " + tempworkers.ToString() + "\nIncome: " + (tempworkers * goldminingfactor).ToString();
             return;
         }
         if (freeworkers > 5 - HowMuckWorkersOnPoint())
@@ -388,7 +392,7 @@ public class Test : MonoBehaviour
         else
             counterworkers.maxValue = freeworkers;
         tempworkers = (int)counterworkers.value;
-        counterworkerslabel.text = "Count: " + tempworkers.ToString();
+        counterworkerslabel.text = "Count: " + tempworkers.ToString() + "\nIncome: " + (tempworkers * goldminingfactor).ToString();
     }
 
     public void ApplySend()
@@ -499,6 +503,7 @@ public class Test : MonoBehaviour
             BattleWithMonsters();
             return;
         }
+        CheckLoseCondition();
         ShowMessageWindow();
     }
 
@@ -525,10 +530,19 @@ public class Test : MonoBehaviour
         if (warriors < monster)
         {
             int lostinbattle = (int)(0.5f * allpoints) + 2;
+            if (lostinbattle > warriors)
+            {
+                lostinbattle = warriors;
+            }
             LoseWarriors((int)(0.5f * allpoints) + 2);
-            LoseWorkers(lostworkersonturn);
+            int lostinbattleworkers = 5;
+            if (lostinbattleworkers > workers)
+            {
+                lostinbattleworkers = workers;
+            }
+            LoseWorkers(lostinbattleworkers);
             monstersAttackWindow.SetActive(true);
-            monstersAttackText.text = "Monsters were here! You win! \n Monster power: " + monster + "\n Warriors lost: " + lostinbattle.ToString() + "\n Workers lost: " + lostwarriorsontern.ToString();
+            monstersAttackText.text = "Monsters were here! You lose! \n Monster power: " + monster + "\n Warriors lost: " + lostinbattle.ToString() + "\n Workers lost: " + lostinbattleworkers.ToString();
             UpdateText();
             return;
         }
@@ -588,5 +602,25 @@ public class Test : MonoBehaviour
     public void Exit()
     {
         Application.Quit();
+    }
+
+    public void CheckLoseCondition()
+    {
+        int sumgold = 0;
+        foreach (MapPoint m in mappoints)
+        {
+            if (m.explored)
+            {
+                sumgold += m.gold;
+            }
+        }
+        if (sumgold < 4 && gold < 4 && warriors < 5)
+        {
+            WinLose(false);
+        }
+        if (workers == 0 && gold < 2)
+        {
+            WinLose(false);
+        }
     }
 }
