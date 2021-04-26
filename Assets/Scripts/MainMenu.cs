@@ -28,7 +28,11 @@ public class MainMenu : MonoBehaviour
             musicVolume = volume.value;
             MusicSettings.volume = musicVolume;
         }
-        Debug.Log(MusicSettings.volume);
+        else
+        {
+             volume.value = MusicSettings.volume;
+        }
+        toggle.isOn = MusicSettings.music;
         CheckVolume();
     }
 

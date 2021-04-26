@@ -153,17 +153,27 @@ public class Test : MonoBehaviour
     public void BuyWindow(int type)
     {
         nowtype = type;
-        buyWindow.SetActive(true);
         if (type == 1)
         {
+            if (gold < workercost)
+            {
+                return;
+            }
+            textOnBuyWindow.text = "Workers can help you explore new mines and extract more gold. you NO need to upkeep your workers.";
             counter.maxValue = (int)gold / workercost;
             counterlabel.text = "count : 0";
         }
         if (type == 2)
         {
+            if (gold < warriorcost)
+            {
+                return;
+            }
+            textOnBuyWindow.text = "Warriors can help you protect your workers and mines. You need to upkeep your warriors!";
             counter.maxValue = (int)gold / warriorcost;
             counterlabel.text = "count : 0";
         }
+        buyWindow.SetActive(true);
     }
 
     public void Buying()
