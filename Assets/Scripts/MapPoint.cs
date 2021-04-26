@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapPoint : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class MapPoint : MonoBehaviour
     public int goldCountMin, goldCountMax;
     public int gold;
     public int workersonExplore;
+    public Sprite  monstersimg, goldsimg, closeimg;
 
     private void Awake()    
     {
@@ -29,11 +31,31 @@ public class MapPoint : MonoBehaviour
     public void GoldCheck(int goldmine)
     {
         gold -= workershere * goldmine;
+        if (gold == 0)
+        {
+            GetComponent<Image>().sprite = closeimg;
+        }
     }
 
     public bool Monstershere()
     {
         return Random.Range(0, 100) < monsterchance;
+    }
+
+    public void ExploreMine()
+    {
+        if (!escort && monsters)
+        {
+            GetComponent<Image>().sprite = monstersimg;
+        }
+        if (explored)
+        {
+            GetComponent<Image>().sprite = goldsimg;
+        }
+        if (gold == 0)
+        {
+            GetComponent<Image>().sprite = closeimg;
+        }
     }
 }
 

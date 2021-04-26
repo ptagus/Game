@@ -22,6 +22,8 @@ public class Test : MonoBehaviour
     [Header("People")]
     public int workers;
     public int warriors;
+    public int workersOnStart;
+    public int warriorsOnStart;
     public int warriorslost;
     public int workerlost;
     public int warriorsEscrot = 5;
@@ -67,8 +69,8 @@ public class Test : MonoBehaviour
     {
         turnCounter.text = "Turn : " + turns;
         minecounter.text = "Mines : " + allpoints;
-        freeworkers = workers;
-        freewarriors = warriors;
+        BuyWorker(workersOnStart, 0);
+        BuyWarrior(warriorsOnStart, 0, warriorsOnStart);
         int count = maps.Length;
         points = new int[count];
         goldText.text = gold.ToString() + "/" + goldincreas.ToString();
@@ -107,6 +109,7 @@ public class Test : MonoBehaviour
         lostwarriorsontern += count;
         warriors -= count;
         upkeep -= count * upkeepfactor;
+        freewarriors -= count;
         UpdateText();
     }
 
@@ -114,6 +117,7 @@ public class Test : MonoBehaviour
     {
         lostworkersonturn += count;
         workers -= count;
+        freeworkers -= count;
         if (workers < 0)
         {
             workers = 0;
@@ -312,6 +316,7 @@ public class Test : MonoBehaviour
                     if (m.monsters && m.escort)
                         LoseWarriors(warriorslost);
                     m.explored = true;
+                    m.ExploreMine();
                     newpoints++;
                     for (int i = 0; i < points.Length; i++)
                     {
@@ -491,19 +496,19 @@ public class Test : MonoBehaviour
 
     public void ShowMessageWindow()
     {
-        if (!firstmessage && allpoints == 3)
+        if (!firstmessage && allpoints >= 3)
         {
             infoMessageWindow.SetActive(true);
             infoMessage.text = "";
             firstmessage = true;
         }
-        if (!secondmessage && allpoints == 7)
+        if (!secondmessage && allpoints >= 7)
         {
             infoMessageWindow.SetActive(true);
             infoMessage.text = "";
             secondmessage = true;
         }
-        if (!thirdmessage && allpoints == 11)
+        if (!thirdmessage && allpoints >= 11)
         {
             infoMessageWindow.SetActive(true);
             infoMessage.text = "";
